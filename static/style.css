@@ -1,0 +1,30 @@
+/* CA1: CRUD Application */
+/* CA2: Registration/Authentication */
+
+main {
+    margin-bottom: 20px;
+}
+
+footer {
+    position: relative;
+    bottom: 0;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+.banner-image {
+    max-width: 100%;
+    width: 100vw;
+    max-height: 40%;
+    height: 40vh;
+    overflow: clip;
+    object-fit: cover;
+}
+
+.form-input-field {
+    width: 25%;
+    margin: auto;
+}

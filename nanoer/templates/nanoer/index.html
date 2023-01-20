@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Dorset Music Collection{% endblock %}
+
+{% block content %}
+{#    <h1>Welcome to Dorset Music Collection</h1>#}
+{#    <br><br>#}
+{#    <h3>Choose one of the currently available apps below:</h3>#}
+{#    <br>#}
+{#    <ul>#}
+{#        <li>#}
+            {# link to view associated with the name "index" #}
+{#            <h5><a href="#">Polls</a></h5>#}
+{#        </li>#}
+{#    </ul>#}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="img">Select image:</label>
+        <input type="file" id="img" name="img" accept="image/*">
+        <input type="submit">
+    </form>
+    <br>
+{#    {% if image %}<h1>{{ image }}</h1>{% endif %}#}
+    {% if image %}<img src="{{ image }}" width="350" height="350" alt="">{% endif %}
+{% endblock %}
+{% block banner %}
+{#    {% load static %}#}
+    {# loads resource from project's general images directory #}
+{#    <img class="banner-image" src="{% static 'images/home-banner.jpg' %}" alt="music collection">#}
+{% endblock %}
