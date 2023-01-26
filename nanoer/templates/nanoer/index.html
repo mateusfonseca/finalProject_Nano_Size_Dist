@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Dorset Music Collection{% endblock %}
+{% block title %}Website Title{% endblock %}
 
 {% block content %}
 {#    <h1>Welcome to Dorset Music Collection</h1>#}
@@ -22,6 +22,7 @@
     <br>
 {#    {% if image %}<h1>{{ image }}</h1>{% endif %}#}
     {% if image %}<img src="{{ image }}" width="350" height="350" alt="">{% endif %}
+    {% if chart %}<img src="{{ chart }}" width="350" height="350" alt="">{% endif %}
 {% endblock %}
 {% block banner %}
 {#    {% load static %}#}
