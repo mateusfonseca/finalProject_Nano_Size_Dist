@@ -46,10 +46,12 @@ class IndexView(TemplateView):
 
         print("Number of circles: " + str(len(circles[0])))
 
+        import seaborn as sns
         import pandas as pd
         radius_list = lambda circle: circle[0:, 2]
         df = pd.DataFrame(radius_list(circles[0]))
-        ax = df.plot.hist(edgecolor='black', range=[5, 50], bins=30).get_figure()
+        # ax = df.plot.hist(edgecolor='black', range=[5, 50], bins=30).get_figure()
+        ax = sns.displot(df, kde=True, bins=30, binrange=(5, 50))
 
         with NamedTemporaryFile() as f:
             ax.savefig(f)
