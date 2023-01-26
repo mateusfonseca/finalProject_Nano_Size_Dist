@@ -19,5 +19,5 @@ from django.views.generic import TemplateView
 
 urlpatterns = [
     path('', include('nanoer.urls')),  # endpoints within nanoer
-    path('nanoer/', include('nanoer.urls')),  # endpoints within nanoer
+    # path('nanoer/', include('nanoer.urls')),  # endpoints within nanoer
 ]
