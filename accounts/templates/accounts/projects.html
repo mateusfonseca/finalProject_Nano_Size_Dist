@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}User Projects{% endblock %}
+
+{% block content %}
+    <h1>Projects</h1>
+    <br><br>
+    {#  list with all projects that belong to the currently logged-in user  #}
+    {% if context.project_list %}
+        <div class="row row-cols-3 row-cols-md-2 g-4">
+            {# render a Bootstrap card for each project in the list #}
+            {% for project in context.project_list %}
+                <div class="col">
+                    <div class="card text-start h-100">
+                        <div class="card-header text-bg-dark">
+                            {{ project.title }}
+                            {# delete current project #}
+                            <a href="{% url 'nanoer:delete' project.id %}">
+                                <i class="little-icon fa-solid fa-trash-can text-light"></i>
+                            </a>
+                            {# download current project #}
+                            <a href="{% url 'nanoer:download_project' project.id %}" download="">
+                                <i class="little-icon fa-solid fa-download text-light"></i>
+                            </a>
+                            {# edit current project #}
+                            <a href="{% url 'nanoer:edit_project' project.id %}">
+                                <i class="little-icon fa-solid fa-pen-to-square text-light"></i>
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">{{ project.description }}</p>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            {#  list with all analyses that belong to the currently logged-in user  #}
+                            {% for analysis in context.analysis_list %}
+                                {# filter analyses by project #}
+                                {% if analysis.project_id == project.id %}
+                                    <li class="list-group-item">
+                                        <b>{{ analysis.title }}:</b> {{ analysis.description }}
+                                    </li>
+                                {% endif %}
+                            {% empty %}
+                                <p class="list-group-item">This project seems to be empty.</p>
+                            {% endfor %}
+                        </ul>
+                        <div class="card-footer text-muted">
+                            Last updated at {{ project.updated_at }}
+                            {# open project #}
+                            <a role="button" class="card-footer-button btn btn-primary"
+                               href="{% url 'nanoer:detail' project.id %}">Open</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <h5>You have not created any projects yet.</h5>
+    {% endif %}
+    <br>
+    {# create new project #}
+    <a href="{% url 'nanoer:create' user.id %}" class="m-2 btn btn-primary" role="button">Create a new project</a>
+{% endblock %}

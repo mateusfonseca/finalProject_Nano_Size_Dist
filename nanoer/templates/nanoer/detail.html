@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Project Details{% endblock %}
+
+{% block content %}
+    <h1>{{ context.project.title }}</h1>
+    <br>
+    <h4>{{ context.project.description }}</h4>
+    <br><br>
+    {#  list with all analyses that belong to the current project  #}
+    {% if context.analysis_list %}
+        <div class="row row-cols-3 row-cols-md-2 g-4">
+            {# render a Bootstrap card for each analysis in the list #}
+            {% for analysis in context.analysis_list %}
+                <div class="col">
+                    <div class="card text-start h-100">
+                        <div class="card-header text-bg-dark">
+                            {{ analysis.title }}
+                            {# delete current analysis #}
+                            <a href="{% url 'nanoer:delete_analysis' analysis.id %}">
+                                <i class="fa-solid fa-trash-can text-light little-icon"></i>
+                            </a>
+                            {# download current analysis #}
+                            <a href="{% url 'nanoer:download_analysis' analysis.id %}" download="">
+                                <i class="fa-solid fa-download text-light little-icon"></i>
+                            </a>
+                            {# edit current analysis #}
+                            <a href="{% url 'nanoer:edit_analysis' analysis.id %}">
+                                <i class="fa-solid fa-pen-to-square text-light little-icon"></i>
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">{{ analysis.description }}</p>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            {#  list with all files that belong to the current analysis  #}
+                            {% for file in context.file_list %}
+                                {# filter files by analysis #}
+                                {% if file.analysis_id == analysis.id %}
+                                    <li class="list-group-item">
+                                        {{ file.title }}
+                                        {# open current file in a new tab #}
+                                        <a href="{{ file.uri }}" target="_blank" rel="noopener noreferrer">
+                                            <i class="fa-solid fa-arrow-up-right-from-square text-dark little-icon"></i>
+                                        </a>
+                                        {% if file.type == "image" %}
+                                            <i class="fa-solid fa-file-image right-floater-icon"></i>
+                                        {% else %}
+                                            <i class="fa-solid fa-file-csv right-floater-icon"></i>
+                                        {% endif %}
+                                        <br>
+                                    </li>
+                                {% endif %}
+                            {% empty %}
+                                <h5>This analysis seems to be empty.</h5>
+                            {% endfor %}
+                        </ul>
+                        <div class="card-footer text-muted">
+                            Created at {{ analysis.created_at }}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <h5>This project is currently empty.</h5>
+    {% endif %}
+    <br><br>
+    <div>
+        <div>
+            <a role="button" class="btn btn-primary m-2" href="{% url 'accounts:projects' user.id %}">Back to
+                Projects</a>
+            <a role="button" class="btn btn-primary m-2" href="{% url 'nanoer:index' %}">Run new analysis</a>
+        </div>
+        <div>
+            <a role="button" class="btn btn-secondary m-2" href="{% url 'nanoer:edit_project' context.project.id %}">Edit
+                this project</a>
+            <a role="button" class="btn btn-secondary m-2" href="{% url 'nanoer:download_project' context.project.id %}"
+               download="">Download this project</a>
+        </div>
+        <div>
+            <a role="button" class="btn btn-danger m-2" href="{% url 'nanoer:delete' context.project.id %}">Delete this
+                project</a>
+        </div>
+    </div>
+{% endblock %}

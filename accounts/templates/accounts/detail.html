@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Account Details{% endblock %}
+
+{% block content %}
+    <h1>Account Details</h1>
+    <br><br>
+    {# username from User model instance #}
+    <h4>Username: {{ user.username }}</h4>
+    {# email from User model instance #}
+    <h4>Email: {{ user.email }}</h4>
+    <h4 datatype="password">Password: *********</h4>
+    {# passes id from User model instance to view associated with the name "update_email" #}
+    <a role="button" href="{% url 'accounts:update_email' user.id %}" class="mt-5 m-1 btn btn-primary">Change email</a>
+    {# link to view associated with the name "password_change" #}
+    <a role="button" href="{% url 'password_change' %}" class="mt-5 m-1 btn btn-primary">Change password</a>
+    <br>
+    {# passes id from User model instance to view associated with the name "delete" #}
+    <a role="button" href="{% url 'accounts:delete' user.id %}" class="mt-2 btn btn-danger">Delete Account</a>
+{% endblock %}

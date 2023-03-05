@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Email Update{% endblock %}
+
+{% load static %}
+{# loads project's general style sheet #}
+<link rel="stylesheet" href="{% static 'style.css' %}">
+
+{% block content %}
+    <h1>Change Email</h1>
+    <br><br>
+    {# email from User model instance #}
+    <h4>Current email: {{ user.email }}</h4>
+    {# sends a POST request with id from User model instance to view associated with the name "update_email" #}
+    <form action="{% url 'accounts:update_email' user.id %}" method="post">
+        {% csrf_token %}
+        <div class="mt-4 form-input-field">
+            <input type="email" name="email" class="form-control" id="exampleFormControlInput1"
+                   placeholder="new email address" aria-label="email">
+        </div>
+        <button class="mt-5 m-1 btn btn-primary" type="submit">Save</button>
+        {# passes id from User model instance to view associated with the name "detail" #}
+        <a role="button" href="{% url 'accounts:detail' user.id %}" class="mt-5 m-1 btn btn-secondary">Cancel</a>
+    </form>
+{% endblock %}

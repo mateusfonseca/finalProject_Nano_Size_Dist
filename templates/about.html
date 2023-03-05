@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}About{% endblock %}
+
+{% block content %}
+    {% load static %}
+    <h1>About the project</h1>
+    <br><br>
+    <h4>
+        <q>automated teeny-tiny-tally</q> (at³) is a web app developed as part of my Research Project/Third Year Project
+        at Dorset College BSc in
+        Computing, Year 3, Semester 2.
+    </h4>
+    <br><br>
+    <h4 class="text-start">Background</h4>
+    <br>
+    <h5 class="text-start">
+        The aim of this project was to develop a web application that makes use of computer vision to assist
+        nanotechnologists in calculating the size distribution of nanoparticle populations by automating the
+        analysis of images obtained via TEM and reducing human intervention, thus quickening the
+        characterization process and increasing its reliability by removing an error-prone step.
+        <br><br>
+        You can read more about <a href="https://doi.org/10.1002/9783527648122.ch1" target="_blank">nanoparticles</a>,
+        <a
+                href="https://doi.org/10.1039/9781782621867-00001" target="_blank">TEM characterization</a> and <a
+            href="https://doi.org/10.1007/978-0-387-31439-6" target="_blank">computer vision</a>.
+    </h5>
+    <br><br>
+    <h4 id="usage" class="text-start">Usage</h4>
+    <br>
+    <h5 class="text-start">
+        Input
+        <br><br>
+        As of now, the application only accepts TIFF files. The uploaded file must be in a very specific visual format
+        so that the algorithm can infer the scaling factor when converting from pixels to nanometers by analyzing the
+        legend separated from the actual micrograph. You can download a dummy file <a href="{% static 'nanoer/images/dummy_tem_format.tif' %}" download="dummy_tem_format.tif">here</a>.
+        <br><br>
+        Output
+        <br><br>
+        The results of each analysis are comprised of four files: the original TIFF image file uploaded by the user; the
+        processed image file with the outlined identified nanoparticles, in PNG format; a 3-axis graph with the size
+        distribution of the sample represented as both a histogram and a KDE plot; and a CSV file containing the x and y
+        coordinates of the center of each nanoparticle, as well as their calculated diameters, in nanometers.
+        <br><br>
+        User accounts
+        <br><br>
+        You do not need an account to run as many analysis as you want. After every run, you will have the option to
+        download all the artifacts in a ZIP file. That said, users can also create accounts, which allow them
+        to create project folders on the server and store/access the results of their analysis remotely. Any stored
+        analysis and even whole projects can be downloaded at any time.
+    </h5>
+    <br><br>
+    <h4 class="text-start">Specifications</h4>
+    <br>
+    <h5 class="text-start">
+        This project runs on some juicy <span style="color: green">venom</span>:
+        <br><br>
+        <ul style="list-style: initial; padding-left: 50px">
+            <li><a href="https://opencv.org/" target="_blank">OpenCV</a> (<a
+                    href="https://pypi.org/project/opencv-python/"
+                    target="_blank">opencv-python</a>)
+            </li>
+            <li><a href="https://numpy.org/" target="_blank">NumPy</a></li>
+            <li><a href="https://pandas.pydata.org/" target="_blank">Pandas</a></li>
+            <li><a href="https://seaborn.pydata.org/" target="_blank">Seaborn</a></li>
+            <li><a href="https://matplotlib.org/" target="_blank">Matplotlib</a></li>
+            <li><a href="https://tesseract-ocr.github.io/" target="_blank">Tesseract OCR</a> (<a
+                    href="https://pypi.org/project/pytesseract/" target="_blank">pytesseract</a>)
+            </li>
+        </ul>
+        <br>
+        Held together by <a href="https://www.djangoproject.com/" target="_blank">Django</a> and <a
+            href="https://www.python.org/" target="_blank">Python</a>.
+    </h5>
+    <br><br>
+    <h5 class="text-start">
+        Visit the project's <a href="https://github.com/mateusfonseca/finalProject_Nano_Size_Dist.git"
+                               target="_blank">GitHub</a>.
+    </h5>
+{% endblock %}

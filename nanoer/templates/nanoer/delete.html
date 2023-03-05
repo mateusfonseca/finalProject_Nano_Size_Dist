@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{# model_classname to get replaced by the name of the class of the model #}
+{% block title %}{{ model_classname }} Deletion{% endblock %}
+
+{% load static %}
+{# loads project's general style sheet #}
+<link rel="stylesheet" href="{% static 'style.css' %}">
+
+{% block content %}
+    <h1>Delete {{ model_classname }}</h1>
+    <br><br>
+    <h4>Are you sure that you want to delete the {{ model_classname|lower }} <q>{{ model.title }}</q>?</h4>
+    <h4>This action cannot be reversed.</h4>
+    <a role="button" href="{{ request.META.HTTP_REFERER }}" class="btn btn-primary mt-5 m-2">Go Back</a>
+    <a role="button" href="{% url 'nanoer:delete_confirm' model_classname model.id %}" class="btn btn-danger mt-5 m-2">Confirm</a>
+{% endblock %}

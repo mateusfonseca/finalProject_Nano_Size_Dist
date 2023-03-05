@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Account Deletion{% endblock %}
+
+{% load static %}
+{# loads project's general style sheet #}
+<link rel="stylesheet" href="{% static 'style.css' %}">
+
+{% block content %}
+    <h1>Delete Account</h1>
+    <br><br>
+    <h4>Are you sure that you want to delete your user account?</h4>
+    <h4>This action cannot be reversed.</h4>
+    {# sends a POST request with id from User model instance to view associated with the name "delete" #}
+    <form action="{% url 'accounts:delete' user.id %}" method="post">
+        {% csrf_token %}
+        <div class="mt-4 form-input-field">
+            {# shows error message if provided password does not match the one in the database #}
+            {% if fail == 1 %}
+                <p class="text-danger">Wrong password!</p>
+            {% endif %}
+            <input type="password" name="password" class="form-control" id="exampleFormControlInput1"
+                   placeholder="Password to confirm deletion" aria-label="password">
+        </div>
+        {# passes id from User model instance to view associated with the name "detail" #}
+        <a role="button" href="{% url 'accounts:detail' user.id %}" class="btn btn-primary mt-5 m-2" type="submit">Go
+            Back</a>
+        <button class="btn btn-danger mt-5 m-2" type="submit">Confirm</button>
+    </form>
+{% endblock %}

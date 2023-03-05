@@ -1,0 +1,24 @@
+{# Bootstrap Modal #}
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header text-bg-dark">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Choose a project</h1>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="project-list">
+                    {# to be populated dynamically #}
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button data-bs-dismiss="modal" type="button" id="save" class="btn btn-primary" disabled>Save to
+                    project
+                </button>
+                <a href="{% url 'nanoer:create' user.id %}" role="button" class="btn btn-primary">Create new
+                    project</a>
+            </div>
+        </div>
+    </div>
+</div>

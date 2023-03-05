@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Project Update{% endblock %}
+
+{% load static %}
+{# loads project's general style sheet #}
+<link rel="stylesheet" href="{% static 'style.css' %}">
+
+{% block content %}
+    <h1>Update Project Details</h1>
+    <br><br>
+    <h4>Current title: {{ project.title }}</h4>
+    <h4>Current description: {{ project.description }}</h4>
+    {# sends a POST request with id from Project model instance to view associated with the name "edit_project" #}
+    <form action="{% url 'nanoer:edit_project' project.id %}" method="post">
+        {% csrf_token %}
+        <div class="mt-4 form-input-field">
+            <input type="text" name="title" class="form-control" id="exampleFormControlInput1"
+                   placeholder="new title" aria-label="title">
+        </div>
+        <div class="mt-4 form-input-field">
+            <textarea name="description" class="form-control" id="exampleFormControlInput1"
+                      placeholder="new description" aria-label="description" rows="5"></textarea>
+        </div>
+        <button class="mt-5 m-1 btn btn-primary" type="submit">Save</button>
+        {# go back to previous page #}
+        <a role="button" href="{{ request.META.HTTP_REFERER }}" class="mt-5 m-1 btn btn-secondary">Cancel</a>
+    </form>
+{% endblock %}

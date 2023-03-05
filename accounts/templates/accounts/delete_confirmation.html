@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Account Deletion Confirmation{% endblock %}
+
+{% block content %}
+    <h1>Accounts</h1>
+    <br><br>
+    <h4>Your account has been deleted.</h4>
+    {# link to view associated with the name "home" #}
+    <h4>Return to <a href="{% url 'home' %}">home</a>.</h4>
+{% endblock %}

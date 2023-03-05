@@ -1,0 +1,13 @@
+.hidden-button {
+    display: none;
+}
+
+.card-max-width {
+    max-width: 20rem;
+}
+
+.local-card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis Update{% endblock %}
+
+{% load static %}
+{# loads project's general style sheet #}
+<link rel="stylesheet" href="{% static 'style.css' %}">
+
+{% block content %}
+    <h1>Update Analysis Details</h1>
+    <br><br>
+    <h4>Current title: {{ analysis.title }}</h4>
+    <h4>Current description: {{ analysis.description }}</h4>
+    {# sends a POST request with id from Analysis model instance to view associated with the name "edit_analysis" #}
+    <form action="{% url 'nanoer:edit_analysis' analysis.id %}" method="post">
+        {% csrf_token %}
+        <div class="mt-4 form-input-field">
+            <input type="text" name="title" class="form-control" id="exampleFormControlInput1"
+                   placeholder="new title" aria-label="title">
+        </div>
+        <div class="mt-4 form-input-field">
+            <textarea name="description" class="form-control" id="exampleFormControlInput1"
+                      placeholder="new description" aria-label="description" rows="5"></textarea>
+        </div>
+        <button class="mt-5 m-1 btn btn-primary" type="submit">Save</button>
+        {# passes id from Project model instance to view associated with the name "detail" #}
+        <a role="button" href="{% url 'nanoer:detail' analysis.project_id %}"
+           class="mt-5 m-1 btn btn-secondary">Cancel</a>
+    </form>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+    <h1>Welcome to at³</h1>
+    <br><br>
+    <h3>Choose one of the options below:</h3>
+    <br>
+    <ul>
+        <li><h5><a href="{% url 'nanoer:index' %}">Get started</a></h5></li>
+        <li><h5><a href="{% url 'about' %}">About this project</a></h5></li>
+        {% if user.is_authenticated %}
+            <li><h5><a href="{% url 'logout' %}">Sign out of your account</a></h5></li>
+        {% else %}
+            <li><h5><a href="{% url 'login' %}">Sign in to your account</a></h5></li>
+            <li><h5><a href="{% url 'accounts:signup' %}">Create an account</a></h5></li>
+        {% endif %}
+    </ul>
+{% endblock %}
+{% block banner %}
+    {% load static %}
+    {# loads resource from project's general images directory #}
+    <img class="banner-image" src="{% static 'images/home-banner.jpg' %}" alt="music collection">
+{% endblock %}

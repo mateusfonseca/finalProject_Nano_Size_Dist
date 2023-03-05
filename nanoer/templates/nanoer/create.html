@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Create New Project{% endblock %}
+
+{% block content %}
+    <h1>Create a new project</h1>
+    <br><br>
+    {# sends a POST request to view associated with the name "create" #}
+    <form action="{% url 'nanoer:create' user.id %}" method="post">
+        {% csrf_token %}
+        <div class="mb-3 form-input-field col-lg-10">
+            {# title of the new project #}
+            <input type="text" name="title" class="form-control" id="title"
+                   placeholder="Title" aria-label="title">
+        </div>
+        <div class="mb-3 form-input-field col-lg-10">
+            {# description of the new project #}
+            <textarea name="description" class="form-control" id="description"
+                      placeholder="Description" aria-label="description" rows="5"></textarea>
+        </div>
+        <button class="m-2 btn btn-primary" type="submit">Create</button>
+        <a role="button" href="{% url 'accounts:projects' user.id %}" class="m-2 btn btn-secondary">Cancel</a>
+    </form>
+{% endblock %}
