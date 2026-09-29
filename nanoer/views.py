@@ -8,6 +8,7 @@ import cv2
 import numpy as np
 import pandas as pd
 import seaborn as sns
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
@@ -17,6 +18,7 @@ from django.views import generic
 from django.views.generic import TemplateView
 from matplotlib import pyplot as plt
 from pytesseract import pytesseract
+from keras.models import load_model
 
 from finalProject.settings import MEDIA_ROOT, MEDIA_URL
 from nanoer.models import Project, File, Analysis
@@ -26,6 +28,13 @@ from nanoer.models import Project, File, Analysis
 # The views are classes and functions that respond to web requests with appropriate web responses.
 # They invoke the templates that will be rendered in return (if applicable) and handle any errors
 # that may arise during the handling of the requests.
+
+
+# load trained CNN models
+mfx = load_model('cnn_models/model_find_x.keras')
+mfy = load_model('cnn_models/model_find_y.keras')
+mfr = load_model('cnn_models/model_find_r.keras')
+mfn = load_model('cnn_models/model_find_n.keras')
 
 
 # crop uploaded image so that the actual image and the legend
@@ -101,6 +110,116 @@ def calculate_scale(img):  # this image is just the right-half portion of the le
     return factor / bar_size  # returns scale
 
 
+# expand each quadrant to the size of the original image
+def pad_quad(image, quad):
+    q = image
+
+    # keep track of the position of previous
+    # quadrants so that current quadrant expands
+    # in the correct diagonal
+    for i in quad[::-1]:
+        p = q.shape[0]
+
+        match i:
+            case 0:
+                q = np.pad(q, ((0, p), (0, p), (0, 0)), 'constant', constant_values=1)
+            case 1:
+                q = np.pad(q, ((0, p), (p, 0), (0, 0)), 'constant', constant_values=1)
+            case 2:
+                q = np.pad(q, ((p, 0), (0, p), (0, 0)), 'constant', constant_values=1)
+            case 3:
+                q = np.pad(q, ((p, 0), (p, 0), (0, 0)), 'constant', constant_values=1)
+
+    return q  # return fully expanded quadrant
+
+
+# find circles using OpenCV's implementation of the Circle Hough Transform algorithm
+def find_circles_cht(gray_img):
+    """
+    use OpenCV Hough Circle Transform to detect circles. From the official documentation:
+
+    cv.HoughCircles(
+      image, method, dp, minDist[, circles[, param1[, param2[, minRadius[, maxRadius]]]]]) -> circles
+
+    Parameters:
+      image=      8-bit, single-channel, grayscale input image.
+      circles=    Output vector of found circles. Each vector is encoded as 3 or 4 element
+                  floating-point vector (x,y,radius) or (x,y,radius,votes).
+      method=     Detection method, see HoughModes. The available methods are HOUGH_GRADIENT
+                  and HOUGH_GRADIENT_ALT.
+      dp=     	  Inverse ratio of the accumulator resolution to the image resolution. For
+                  example, if dp=1 , the accumulator has the same resolution as the input
+                  image. If dp=2 , the accumulator has half as big width and height. For
+                  HOUGH_GRADIENT_ALT the recommended value is dp=1.5, unless some small very
+                  circles need to be detected.
+      minDist=    Minimum distance between the centers of the detected circles. If the parameter
+                  is too small, multiple neighbor circles may be falsely detected in addition to
+                  a true one. If it is too large, some circles may be missed.
+      param1= 	  First method-specific parameter. In case of HOUGH_GRADIENT and HOUGH_GRADIENT_ALT,
+                  it is the higher threshold of the two passed to the Canny edge detector (the
+                  lower one is twice smaller). Note that HOUGH_GRADIENT_ALT uses Scharr algorithm
+                  to compute image derivatives, so the threshold value shough normally be higher,
+                  such as 300 or normally exposed and contrasty images.
+      param2= 	  Second method-specific parameter. In case of HOUGH_GRADIENT, it is the
+                  accumulator threshold for the circle centers at the detection stage.
+                  The smaller it is, the more false circles may be detected. Circles, corresponding
+                  to the larger accumulator values, will be returned first. In the case of
+                  HOUGH_GRADIENT_ALT algorithm, this is the circle "perfectness" measure.
+                  The closer it to 1, the better shaped circles algorithm selects. In most
+                  cases 0.9 should be fine. If you want get better detection of small circles,
+                  you may decrease it to 0.85, 0.8 or even less. But then also try to limit
+                  the search range [minRadius, maxRadius] to avoid many false circles.
+      minRadius=  Minimum circle radius.
+      maxRadius=  Maximum circle radius. If <= 0, uses the maximum image dimension. If < 0,
+                  HOUGH_GRADIENT returns centers without finding the radius. HOUGH_GRADIENT_ALT
+                  always computes circle radiuses.
+    """
+    circles = cv2.HoughCircles(image=gray_img, method=cv2.HOUGH_GRADIENT, dp=1, minDist=100, param1=50,
+                               param2=75,
+                               minRadius=25, maxRadius=200)
+
+    return np.uint16(np.around(circles))  # round up circle points with numpy
+
+
+# find circles using CNN model predictions
+def find_circles_cnn(image, qp=None, rec=0, o=None):
+    results = []
+    # predict the number of circles in the image
+    count = round(mfn.predict(np.array([image]), verbose=0)[0][0])
+
+    if count < 1:  # if no circles, return empty list
+        return [[]]
+
+    elif count > 1:  # if multiples circles
+        if qp is not None:
+            if qp.shape[0] <= 1: return
+            image = qp
+
+        if o is None:  # keep track of quadrant positions
+            o = []
+
+        # split current image into quadrants
+        qs = [m
+              for row_wise in np.split(image, 2, axis=0)
+              for m in np.split(row_wise, 2, axis=1)]
+
+        # recursively evaluate each quadrant
+        for i, q in enumerate(qs):
+            o.append(i)
+            q = pad_quad(q, o)
+            rec += 1
+            results += (find_circles_cnn(q, qs[i], rec, o))
+            o.pop()
+
+    else:  # if only one circle, predicts its (x,y) coordinates and radius
+        results.append([])
+        for model in [mfx, mfy, mfr]:
+            results[-1].append(round(model.predict(np.array([image]), verbose=0)[0][0]))
+
+    # return list of circles found
+    return list(filter(lambda x: True if x else False, results))
+
+
 # index view of the nanoer app
 # any user can submit an image for analysis
 # even if they are not logged-in or do not have an account
@@ -111,10 +230,11 @@ class IndexView(TemplateView):
 
     def post(self, request):
         uploaded_file = request.FILES['img']
+        method = request.POST['method']
 
-        # check that the uploaded file is compliant with the required format
+        # check that the uploaded file is compliant with the accepted formats
         if not hasattr(uploaded_file, 'temporary_file_path') or not uploaded_file.name.lower().endswith(
-                ('.tif', '.tiff')):
+                ('.png', '.tif', '.tiff')):
             return render(request, self.template_name, {'fail': 1})
 
         path = uploaded_file.temporary_file_path()  # uploaded image
@@ -126,62 +246,28 @@ class IndexView(TemplateView):
         gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # make sure image is gray scale
 
         try:  # tries to process image
-            """
-            use OpenCV Hough Circle Transform to detect circles. From the official documentation:
-            
-            cv.HoughCircles(
-              image, method, dp, minDist[, circles[, param1[, param2[, minRadius[, maxRadius]]]]]) -> circles
-            
-            Parameters:
-              image=      8-bit, single-channel, grayscale input image.
-              circles=    Output vector of found circles. Each vector is encoded as 3 or 4 element 
-                          floating-point vector (x,y,radius) or (x,y,radius,votes).
-              method=     Detection method, see HoughModes. The available methods are HOUGH_GRADIENT 
-                          and HOUGH_GRADIENT_ALT.
-              dp=     	  Inverse ratio of the accumulator resolution to the image resolution. For 
-                          example, if dp=1 , the accumulator has the same resolution as the input 
-                          image. If dp=2 , the accumulator has half as big width and height. For 
-                          HOUGH_GRADIENT_ALT the recommended value is dp=1.5, unless some small very 
-                          circles need to be detected.
-              minDist=    Minimum distance between the centers of the detected circles. If the parameter 
-                          is too small, multiple neighbor circles may be falsely detected in addition to 
-                          a true one. If it is too large, some circles may be missed.
-              param1= 	  First method-specific parameter. In case of HOUGH_GRADIENT and HOUGH_GRADIENT_ALT, 
-                          it is the higher threshold of the two passed to the Canny edge detector (the 
-                          lower one is twice smaller). Note that HOUGH_GRADIENT_ALT uses Scharr algorithm 
-                          to compute image derivatives, so the threshold value shough normally be higher, 
-                          such as 300 or normally exposed and contrasty images.
-              param2= 	  Second method-specific parameter. In case of HOUGH_GRADIENT, it is the 
-                          accumulator threshold for the circle centers at the detection stage. 
-                          The smaller it is, the more false circles may be detected. Circles, corresponding 
-                          to the larger accumulator values, will be returned first. In the case of 
-                          HOUGH_GRADIENT_ALT algorithm, this is the circle "perfectness" measure. 
-                          The closer it to 1, the better shaped circles algorithm selects. In most 
-                          cases 0.9 should be fine. If you want get better detection of small circles, 
-                          you may decrease it to 0.85, 0.8 or even less. But then also try to limit 
-                          the search range [minRadius, maxRadius] to avoid many false circles.
-              minRadius=  Minimum circle radius.
-              maxRadius=  Maximum circle radius. If <= 0, uses the maximum image dimension. If < 0, 
-                          HOUGH_GRADIENT returns centers without finding the radius. HOUGH_GRADIENT_ALT 
-                          always computes circle radiuses.
-            """
-            circles = cv2.HoughCircles(image=gray_img, method=cv2.HOUGH_GRADIENT, dp=1, minDist=100, param1=50,
-                                       param2=75,
-                                       minRadius=25, maxRadius=200)
-            circles = np.uint16(np.around(circles))  # round up circle points with numpy
+            if method == 'cht':
+                circles = find_circles_cht(gray_img)[0, :]
+
+            else:
+                if gray_img.shape != (256, 256, 1):
+                    gray_img = cv2.resize(gray_img, dsize=(256, 256), interpolation=cv2.INTER_CUBIC)
+                    gray_img = np.expand_dims(gray_img, axis=-1)
+
+                circles = find_circles_cnn(gray_img/255)
 
             # back to RGB so that the circles are visible
             color_img = cv2.cvtColor(gray_img, cv2.COLOR_GRAY2RGB)
 
             # draw the circle outlines and their center points
-            for i in circles[0, :]:
+            for c in circles:
                 # draw the outer circle
-                cv2.circle(color_img, (i[0], i[1]), i[2], (0, 255, 0), 2)
+                cv2.circle(color_img, (c[0], c[1]), c[2], (0, 255, 0), 2)
                 # draw the center of the circle
-                cv2.circle(color_img, (i[0], i[1]), 2, (0, 0, 255), 3)
+                cv2.circle(color_img, (c[0], c[1]), 2, (0, 0, 255), 3)
 
             # create pandas dataframe from detected circles
-            df = pd.DataFrame(data=circles[0], columns=['center_x', 'center_y', 'diameter_nm'])
+            df = pd.DataFrame(data=circles, columns=['center_x', 'center_y', 'diameter_nm'])
             # convert radii to nanometers and multiply by 2 to obtain diameter
             df.diameter_nm *= scale * 2
 
@@ -191,15 +277,16 @@ class IndexView(TemplateView):
             ax.set_title('Size Distribution Histogram')
             if scale == 1:  # if scale is 1:1 diameter is in pixels
                 ax.set_xlabel('Diameter (px)')
+                df.rename(columns={"diameter_nm": "diameter_px"}, inplace=True)
             else:  # else, diameter is in nanometers
                 ax.set_xlabel('Diameter (nm)')
             ax.set_ylabel('Number of Particles')
             ax2.set_ylabel('Density')
 
             # plot histogram with number of particles on the left y-axis
-            sns.histplot(data=df, x='diameter_nm', legend=False, color='skyblue', ax=ax)
+            sns.histplot(data=df, x=df.columns[-1], legend=False, color='skyblue', ax=ax)
             # plot KDE with density on the right y-axis
-            sns.kdeplot(data=df, x='diameter_nm', legend=False, color='crimson', ax=ax2)
+            sns.kdeplot(data=df, x=df.columns[-1], legend=False, color='crimson', ax=ax2)
 
             tmpdir = tempfile.mkdtemp()  # create temporary directory
             os.mkdir(os.path.join(tmpdir, 'files'))  # makes folder named 'files' inside
@@ -211,7 +298,7 @@ class IndexView(TemplateView):
             # saves plotted graph to temp folder as a PNG file
             fig.savefig(os.path.join(tmpdir, 'files', 'size_dist_plot.png'))
             # saves dataframe to temp folder as a CSV file
-            df.to_csv(os.path.join(tmpdir, 'files', 'dataframe.csv'))
+            df.to_csv(os.path.join(tmpdir, 'files', 'dataframe.csv'), index=False)
 
             # creates a ZIP archive of temp folder
             results = shutil.make_archive(os.path.join(tmpdir, 'u0'), 'zip', tmpdir, 'files')
@@ -224,7 +311,7 @@ class IndexView(TemplateView):
             tmp_media_url = [os.path.join(os.sep, MEDIA_URL, tmp_files[1:], file) for file in list_dir]
 
             context = {'image': tmp_media_url[2], 'chart': tmp_media_url[3], 'results': results, 'tmpdir': tmpdir,
-                       'tmp_files': tmp_files}
+                       'tmp_files': tmp_files, 'method': method.upper()}
         except:  # if it fails, for any reason, informs template
             context = {'fail': 2}
 
@@ -337,7 +424,6 @@ class DetailView(LoginRequiredMixin, UserPassesTestMixin, generic.ListView):
 
 # temporary files clean-up method
 def temp_clean_up(request):
-    print(request.POST['tmpdir'])
     shutil.rmtree(request.POST['tmpdir'])  # remove file tree rooted at tmpdir
 
     return HttpResponse(status=204)

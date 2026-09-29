@@ -1,7 +1,7 @@
 # at³: an automated size distribution calculator for TEM-based nanoparticle scans
 
 **Dorset College Dublin**  
-**BSc in Science in Computing & Multimedia**  
+**BSc in Computing & Multimedia**  
 **Research Project / Third Year Project - BSC30922**  
 **Year 3, Semester 2**  
 **Final Project**
@@ -18,7 +18,22 @@
 
 **Submission date:** 5 March 2023
 
-This repository contains a Django web app developed as part of my Research Project/Third Year Project at Dorset College BSc in Computing, Year 3, Semester 2.
+**CCT College Dublin**  
+**BSc Hons in Computing & Information Technology**  
+**Problem Solving for Industry - Y4M8**  
+**Year 4, Semester 2**  
+**Continuous Assessment**
+
+**Lecturer name:** Dr. Muhammad Iqbal  
+**Lecturer email:** miqbal@cct.ie
+
+**Student Name:** Mateus Fonseca Campos  
+**Student Number:** 2023327  
+**Student Email:** 2023327@student.cct.ie
+
+**Submission date:** 22 May 2024
+
+This repository contains a Django web app developed as part of my Research Project/Third Year Project at Dorset College BSc in Computing, Year 3, Semester 2, and later enhanced as part of my Final Year Project at CCT College BSc (Hons) in Computing & IT, Year 4, Semester 2.
 
 ## Part 1: Requirements and Setup
 
@@ -44,6 +59,8 @@ This repository contains a Django web app developed as part of my Research Proje
 The aim of this project was to develop a web application that makes use of computer vision to assist nanotechnologists in calculating the size distribution of nanoparticle populations by automating the analysis of images obtained via TEM and reducing human intervention, thus quickening the characterization process and increasing its reliability by removing an error-prone step.
 
 You can read more about **[nanoparticles](https://doi.org/10.1002/9783527648122.ch1)**, **[TEM characterization](https://doi.org/10.1039/9781782621867-00001)** and **[computer vision](https://doi.org/10.1007/978-0-387-31439-6)**.
+
+While the original version of the application developed for the Dorset project relied exclusively on traditional AI, the enhanced version developed for the CCT project also offers a deep learning approach. More specifically, version 1 implements the Circle Hough Transform (CHT) algorithm via OpenCV, while version 2 implements Convolutional Neural Network (CNN) models via Keras.
 
 ## Part 3: Breakdown
 
@@ -130,7 +147,21 @@ This project was developed based on the web framework Django and its MVT design 
   - **./nanoer/index.html:** submit file for analysis.
   - **./nanoer/save_to_project.html:** save analysis' results to project.
 
-## Part 4: References
+## Part 4: Diagrams
+
+| ![cnn_architecture.png](diagrams/cnn_architecture.png) |
+| :-: |
+| *CCN Architecture* |
+
+| ![deployment.png](diagrams/deployment.png) |
+| :-: |
+| *Deployment Infrastructure* |
+
+| ![flowchart.png](diagrams/flowchart.png) |
+| :-: |
+| *Application Flowchart* |
+
+## Part 5: References
 
 This project runs on some juicy <span style="color: green">**venom**</span>:
 
@@ -140,10 +171,11 @@ This project runs on some juicy <span style="color: green">**venom**</span>:
 - **[Seaborn](https://seaborn.pydata.org/)**
 - **[Matplotlib](https://matplotlib.org/)**
 - **[Tesseract OCR](https://tesseract-ocr.github.io/)** (**[pytesseract](https://pypi.org/project/pytesseract/)**)
+- **[Keras](https://keras.io/)** 
 
 Held together by **[Django](https://www.djangoproject.com/)** and **[Python](https://www.python.org/)**.
 
-## Part 5: Copyright Disclaimer
+## Part 6: Copyright Disclaimer
 
 This project may feature content that is copyright protected. Please, keep in mind that this is a student's project and has no commercial purpose whatsoever. Having said that, if you are the owner of any content featured here and would like for it to be removed, please, contact me and I will do so promptly.
 

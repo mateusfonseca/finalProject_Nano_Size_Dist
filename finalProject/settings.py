@@ -55,6 +55,13 @@ ASGI_APPLICATION = 'finalProject.asgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {'default': {'ENGINE': 'django.db.backends.mysql', 'NAME': 'dorset_final_project', 'USER': 'mateus24088',
                          'PASSWORD': 'mat24088', 'HOST': 'localhost', 'PORT': '3306', }, }
 
