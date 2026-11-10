@@ -1,5 +1,8 @@
 # at³: an automated size distribution calculator for TEM-based nanoparticle scans
 
+**Author:** Mateus Fonseca Campos  
+**Email:** mateusff8@gmail.com
+
 **Dorset College Dublin**  
 **BSc in Computing & Multimedia**  
 **Research Project / Third Year Project - BSC30922**  
